@@ -45,18 +45,18 @@ def call_llm(text: str) -> str:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("issue", help="docs/issue-N.md 路径")
-    ap.add_argument("-o", "--out", required=True, help="输出英文 md 路径")
+    ap.add_argument("-o", "--out", help="输出英文 md 路径（默认 <input>/../docs-en/issue-N.md）")
     args = ap.parse_args()
 
     text = Path(args.issue).read_text(encoding="utf-8")
     if not os.environ.get("OPENAI_API_KEY"):
         sys.exit("请设置 OPENAI_API_KEY（可选 OPENAI_BASE_URL / TRANSLATE_MODEL）")
 
+    out_path = Path(args.out) if args.out else Path(args.issue).parent.parent / "docs-en" / Path(args.issue).name
     translated = call_llm(text)
-    out = Path(args.out)
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(translated, encoding="utf-8")
-    print(f"written: {out}")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(translated, encoding="utf-8")
+    print(f"written: {out_path}")
 
 
 if __name__ == "__main__":
